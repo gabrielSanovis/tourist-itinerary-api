@@ -10,6 +10,7 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(10),
+  CORS_ORIGIN: z.string().default("*"),
 });
 
 const parsed = envSchema.safeParse(process.env);
