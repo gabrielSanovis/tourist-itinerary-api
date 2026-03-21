@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tripnow-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tripnow
+      POSTGRES_PASSWORD: tripnow_password
+      POSTGRES_DB: tripnow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+
+volumes:
+  pgdata:

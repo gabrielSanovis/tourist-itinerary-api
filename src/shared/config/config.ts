@@ -11,7 +11,34 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(10),
   CORS_ORIGIN: z.string().default("*"),
-});
+  DATABASE_URL: z.string().min(1).optional(),
+  PGHOST: z.string().min(1).optional(),
+  PGPORT: z.coerce.number().int().positive().optional(),
+  PGUSER: z.string().min(1).optional(),
+  PGPASSWORD: z.string().min(1).optional(),
+  PGDATABASE: z.string().min(1).optional(),
+  JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+  JWT_EXPIRES_IN: z.string().default("7d"),
+  BCRYPT_SALT_ROUNDS: z.coerce.number().int().positive().default(10),
+})
+  .superRefine((data, ctx) => {
+    const hasDatabaseUrl = Boolean(data.DATABASE_URL);
+    const hasPgParts =
+      Boolean(data.PGHOST) &&
+      Boolean(data.PGPORT) &&
+      Boolean(data.PGUSER) &&
+      Boolean(data.PGPASSWORD) &&
+      Boolean(data.PGDATABASE);
+
+    if (!hasDatabaseUrl && !hasPgParts) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "DATABASE_URL or all PG* variables are required (PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE)",
+        path: ["DATABASE_URL"],
+      });
+    }
+  });
 
 const parsed = envSchema.safeParse(process.env);
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { ItineraryController } from "../controllers/ItineraryController";
 import { validateBody } from "../middlewares/validateBody";
 import { rateLimiter } from "../middlewares/rateLimiter";
+import { authenticate } from "../middlewares/authenticate";
 import { GenerateItineraryUseCase } from "../../application/use-cases/GenerateItineraryUseCase";
 import { OpenAIProvider } from "../../infrastructure/ai/OpenAIProvider";
 
@@ -25,6 +26,7 @@ export const itineraryRouter = Router();
 
 itineraryRouter.post(
   "/",
+  authenticate,
   rateLimiter,
   validateBody(generateItinerarySchema),
   itineraryController.generate

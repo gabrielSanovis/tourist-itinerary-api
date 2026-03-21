@@ -35,15 +35,51 @@ src/
 # 1. Clone and install dependencies
 npm install
 
-# 2. Copy and fill in environment variables
+# 2. Start Postgres (from backend folder)
+docker compose up -d
+
+# 3. Copy and fill in environment variables
 cp .env.example .env
 
-# 3. Start in development mode
+# 4. Start in development mode
 npm run dev
 
-# 4. Build for production
+# 5. Build for production
 npm run build
 npm start
+```
+
+## Postgres (local)
+
+Docker configuration is in `tourist-itinerary-api/docker-compose.yml`. It provisions:
+- Postgres 16 (container name `tripnow-postgres`)
+- Database `tripnow`
+- User `tripnow`
+- Password `tripnow_password`
+- Init script `db/init.sql` (creates `users` table)
+
+### Environment variables (backend)
+
+Add one of the following to `tourist-itinerary-api/.env`:
+
+```bash
+# Option A: single URL
+DATABASE_URL=postgresql://tripnow:tripnow_password@localhost:5432/tripnow
+
+# Option B: split vars
+PGHOST=localhost
+PGPORT=5432
+PGUSER=tripnow
+PGPASSWORD=tripnow_password
+PGDATABASE=tripnow
+```
+
+Auth envs:
+
+```bash
+JWT_SECRET=change_me
+JWT_EXPIRES_IN=7d
+BCRYPT_SALT_ROUNDS=10
 ```
 
 ## API Endpoints
@@ -89,6 +125,17 @@ Health check.
 ```json
 { "status": "ok", "timestamp": "2026-03-16T12:00:00.000Z" }
 ```
+
+### Auth
+
+#### POST /api/auth/register
+Body: `{ "name": "Ana", "username": "ana", "password": "secret123" }`
+
+#### POST /api/auth/login
+Body: `{ "username": "ana", "password": "secret123" }`
+
+#### GET /api/auth/me
+Header: `Authorization: Bearer <token>`
 
 ## Rate Limiting
 
