@@ -10,8 +10,8 @@ if (!getApps().length) {
     credential: cert({
       projectId: config.FIREBASE_PROJECT_ID,
       clientEmail: config.FIREBASE_CLIENT_EMAIL,
-      // Substitui \\n literais por quebras de linha reais (necessário em vars de ambiente)
-      privateKey: config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+      // Substitui \\n literais por quebras de linha reais e remove aspas duplas caso o Docker as tenha injetado
+      privateKey: config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n").replace(/^"|"$/g, ""),
     }),
   });
 } else {
