@@ -7,6 +7,8 @@ import { ItineraryPromptBuilder } from "../../application/prompt/ItineraryPrompt
 import { AppError } from "../../shared/errors/AppError";
 import { logger } from "../../shared/logger/logger";
 import { config } from "../../shared/config/config";
+import { NominatimResult } from "../geocoding/nominatimService";
+import { OverpassResult } from "../geocoding/overpassService";
 
 const itineraryResponseSchema = z.object({
   destination: z.string().min(1),
@@ -19,6 +21,8 @@ const itineraryResponseSchema = z.object({
         description: z.string().min(1),
         category: z.string().min(1),
         estimatedVisitTime: z.string().min(1),
+        lat: z.number(),
+        lng: z.number(),
       })
     )
     .min(1),
@@ -34,9 +38,9 @@ export class OpenAIProvider implements AIProvider {
     this.promptBuilder = new ItineraryPromptBuilder();
   }
 
-  public async generateItinerary(geolocation: Geolocation): Promise<Itinerary> {
+  public async generateItinerary(geolocation: Geolocation, addressInfo: NominatimResult | null, overpassResult: OverpassResult | null): Promise<Itinerary> {
     logger.info(
-      { lat: geolocation.lat, lng: geolocation.lng },
+      { lat: geolocation.lat, lng: geolocation.lng, address: addressInfo?.displayName },
       "Requesting itinerary from OpenAI"
     );
 
@@ -53,7 +57,7 @@ export class OpenAIProvider implements AIProvider {
           },
           {
             role: "user",
-            content: this.promptBuilder.buildUserPrompt(geolocation),
+            content: this.promptBuilder.buildUserPrompt(geolocation, addressInfo, overpassResult),
           },
         ],
         temperature: 0.7,
