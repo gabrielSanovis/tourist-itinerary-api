@@ -3,6 +3,8 @@ export interface ItineraryPlace {
   description: string;
   category: string;
   estimatedVisitTime: string;
+  lat: number;
+  lng: number;
 }
 
 export interface ItineraryProps {
